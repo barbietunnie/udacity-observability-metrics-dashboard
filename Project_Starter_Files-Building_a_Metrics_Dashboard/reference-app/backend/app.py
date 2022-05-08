@@ -41,6 +41,14 @@ app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
     '/metrics': make_wsgi_app()
 })
 
+# register additional default metrics
+metrics.register_default(
+    metrics.counter(
+        'request_by_path_counter', 'Request count by request path',
+        labels={'path': lambda: request.path}
+    )
+)
+
 def init_tracer(service):
 
     config = Config(
@@ -114,6 +122,22 @@ def process_request_with_random_delay(t):
     """A dummy function that takes some time."""
     time.sleep(t)
 
+
+# Register endpoint that returns 4xx error
+@app.route("/client-error")
+@metrics.summary('requests_by_status_4xx', 'Status Code', labels={
+    'code': lambda r: '400'
+})
+def client_error():
+    return "4xx Error", 400
+
+# Register endpoint that returns 5xx error
+@app.route("/server-error")
+@metrics.summary('requests_by_status_5xx', 'Status Code', labels={
+    'code': lambda r: '500'
+})
+def server_error():
+    return "5xx Error", 500
 
 
 
