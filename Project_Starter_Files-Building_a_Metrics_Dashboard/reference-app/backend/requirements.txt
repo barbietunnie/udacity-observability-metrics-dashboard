@@ -1,7 +1,17 @@
 Flask
+Flask-OpenTracing
 requests
 pylint
 gunicorn
 pymongo
 Flask-PyMongo
 prometheus-client
+jaeger-client
+opentelemetry-api
+opentelemetry-exporter-jaeger
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-requests
+opentelemetry-instrumentation
+opentelemetry-sdk
+prometheus-flask-exporter
+pylint
