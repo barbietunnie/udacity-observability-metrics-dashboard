@@ -2,7 +2,9 @@
 
 Run `kubectl` command to show the running pods and services for all components. Take a screenshot of the output and include it here to verify the installation
 
-![Monitoring installation](answer-img/monitoring_installation.png)
+![Monitoring installation - Pods](answer-img/monitoring_installation_pods.png)
+
+![Monitoring installation - Services](answer-img/monitoring_installation_svc.png)
 
 ## Setup the Jaeger and Prometheus source
 
@@ -38,7 +40,7 @@ It is important to know why we want to measure certain metrics for our customer.
 
 Create a dashboard to measure the uptime of the frontend and backend services We will also want to measure to measure 40x and 50x errors. Create a dashboard that show these values over a 24 hour period and take a screenshot.
 
-![SLI Dashboard](answer-img/sli_dashboard.png)
+![SLI Dashboard](answer-img/sli_dashboard_24h.png)
 
 ## Tracing our Flask App
 
