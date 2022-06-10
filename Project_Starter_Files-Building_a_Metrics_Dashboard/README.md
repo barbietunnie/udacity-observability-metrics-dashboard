@@ -126,7 +126,7 @@ Create a Dashboard containing graphs that capture all the metrics of your KPIs a
 
 ## Additional notes
 
-- For accessibility, some thof the services have been posed as `LoadBalancer` so that they can be accessed externally rather than running `port-forward` for them.
+- For accessibility, some of the services have been exposed as a `LoadBalancer` so that they can be accessed externally rather than running `port-forward` for them.
   
   - **Prometheus targets:** http://localhost:30001/targets
 
