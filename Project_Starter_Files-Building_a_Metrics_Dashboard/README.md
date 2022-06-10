@@ -122,3 +122,55 @@ Create a Dashboard containing graphs that capture all the metrics of your KPIs a
 - **Requests per second**: Number of successful requests per second across the backend and frontend services.
 - **Errors per second**: Number of failed (non HTTP 200) responses per second across the backend and frontend services categorized by error code.
 - **Total requests per minute**: The total number of requests measured over one minute intervals in the backend and frontend pods.
+
+
+## Additional notes
+
+- For accessibility, some thof the services have been posed as `LoadBalancer` so that they can be accessed externally rather than running `port-forward` for them.
+  
+  - **Prometheus targets:** http://localhost:30001/targets
+
+    ![Prometheus targets](answer-img/prom_targets.png)
+
+  - **Application Metrics**
+    - **Frontend:** http://localhost:8080/metrics
+    - **Backend:** http://localhost:8081/metrics
+
+    ![Backend metrics](answer-img/backend_metrics.png)
+
+    - **Trial:** http://localhost:8082/metrics
+
+  - **Jaeger:** http://localhost:16686 (Needs to be exposed on the load balancer or port-forwarded)
+
+      To `port-forward` Jaeger, run
+
+      ```
+      kubectl port-forward -n observability service/app-tracer-query --address 0.0.0.0 16686:16686
+      ```
+
+      ![Backend metrics](answer-img/jaeger_home.png)
+
+  - **Grafana:** http://localhost:30002
+- To simulate sample requests, you can use the commands below:
+
+    ```
+    for i in {1..30}; do curl localhost:8080/ > /dev/null 2>&1; done;   
+    for i in {1..5}; do curl localhost:8080/client-error > /dev/null 2>&1; done;
+    for i in {1..10}; do curl localhost:8080/server-error > /dev/null 2>&1; done;
+
+    for i in {1..5}; do curl localhost:8081/client-error > /dev/null 2>&1; done;
+    for i in {1..30}; do curl localhost:8081/ > /dev/null 2>&1; done;   
+    for i in {1..10}; do curl localhost:8081/server-error > /dev/null 2>&1; done;
+
+    for i in {1..5}; do curl localhost:8082/trace > /dev/null 2>&1; done;
+    for i in {1..30}; do curl localhost:8082/ > /dev/null 2>&1; done;
+    for i in {1..30}; do curl localhost:8080/ > /dev/null 2>&1; done;   
+    ```
+
+- ddd
+
+
+
+
+
+
