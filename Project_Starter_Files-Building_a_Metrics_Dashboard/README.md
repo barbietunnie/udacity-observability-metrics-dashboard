@@ -40,7 +40,7 @@ It is important to know why we want to measure certain metrics for our customer.
 
 Create a dashboard to measure the uptime of the frontend and backend services We will also want to measure to measure 40x and 50x errors. Create a dashboard that show these values over a 24 hour period and take a screenshot.
 
-![SLI Dashboard](answer-img/sli_dashboard_24h.png)
+![SLI Dashboard](answer-img/sli_dashboard.png)
 
 ## Tracing our Flask App
 
@@ -64,17 +64,21 @@ Below is a trouble ticket for the developers, to explain the errors that you are
 
 TROUBLE TICKET
 
-Name: Cecil K. Johnson
+Name: Error in `trial/app/app.py`
 
-Date: January 23, 2022
+Date: January 23, 2022 08:05:44
 
-Subject: Backend endpoint returns HTTP Error 405
+Subject: Cannot retrieve the number of jobs from provided URL
 
-Affected Area: Star endpoint
+Affected Area: `"./reference-app/trial/app/app.py", line 62, in trial-app`
 
 Severity: High
 
-Description: The MongoDB connection is unavailable. The tracer span is xxxx
+Description: `JSONDecodeError`: There's an issue around the way the request-response data is structured, cannot evaluate the length of the JSON output. It seems to be a problem with the jobs endpoint.
+
+![Error trace 1](answer-img/trace1.png)
+
+![Error trace 2](answer-img/trace2.png)
 
 
 ## Creating SLIs and SLOs
@@ -104,4 +108,17 @@ Now that we have our SLIs and SLOs, create a list of 2-3 KPIs to accurately meas
 
 Create a Dashboard containing graphs that capture all the metrics of your KPIs and adequately representing your SLIs and SLOs. Include a screenshot of the dashboard here, and write a text description of what graphs are represented in the dashboard.  
 
-![Final Dashboard](answer-img/final_dashboard.png)
+![Final Dashboard - Top](answer-img/final_dashboard1.png)
+![Final Dashboard - Bottom](answer-img/final_dashboard2.png)
+
+**Description of graphs**
+
+- **Uptime**: The percentage of time the backend and frontend services are fully operational
+- **Memory Usage**: The memory usage of the backend and frontend services.
+- **CPU Usage**: The CPU usage of the backend and frontend services as measured over 30 seconds intervals.
+- **40x errors**: Number of 40x errors across the backend and frontend services. This is used to mmeasure Error SLI
+- **50x errors**: Number of 50x errors across the backend and frontend services. This is used to mmeasure Error SLI
+- **Average response time [30s]**: The average response time across the backend and frontend services measured over 30 seconds intervals for successful requests.
+- **Requests per second**: Number of successful requests per second across the backend and frontend services.
+- **Errors per second**: Number of failed (non HTTP 200) responses per second across the backend and frontend services categorized by error code.
+- **Total requests per minute**: The total number of requests measured over one minute intervals in the backend and frontend pods.
