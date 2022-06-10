@@ -3,8 +3,14 @@ kind: Deployment
 metadata:
   name: trial-app
   namespace: observability
+  labels:
+    name: trial
+    release: prometheus
   annotations:
-    "sidecar.jaegertracing.io/inject": "true"
+    sidecar.jaegertracing.io/inject: "true"
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: trial-port
 spec:
   replicas: 1
   selector:
@@ -17,9 +23,13 @@ spec:
     spec:
       containers:
       - name: trial
+        env:
+        - name: JAEGER_HOST
+          value: app-tracer-agent.observability.svc.cluster.local
         image: barbietunnie/observability-trial-service:latest
         ports:
         - name: trial-port
+          protocol: TCP
           containerPort: 8080
 ---
 apiVersion: v1
@@ -27,12 +37,35 @@ kind: Service
 metadata:
   name: trial-service
   namespace: observability
-  annotations:
-    "sidecar.jaegertracing.io/inject": "true"
+  labels:
+    app: trial
+    release: prometheus
 spec:
   selector:
     app: trial
   ports:
-    - port: 8082
+    - name: trial
+      port: 8082
       targetPort: trial-port
   type: LoadBalancer
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: trial
+  namespace: monitoring
+  labels:
+    app: trial
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: trial
+  endpoints:
+  - port: trial
+    path: /metrics
+    interval: 5s
+  namespaceSelector:
+    matchNames:
+      - observability

@@ -3,8 +3,14 @@ kind: Deployment
 metadata:
   name: frontend-app
   namespace: observability
+  labels:
+    name: frontend
+    release: prometheus
   annotations:
-    "sidecar.jaegertracing.io/inject": "true"
+    sidecar.jaegertracing.io/inject: "true"
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: frontend-port
 spec:
   replicas: 1
   selector:
@@ -17,9 +23,13 @@ spec:
     spec:
       containers:
       - name: frontend
+        env:
+        - name: JAEGER_HOST
+          value: app-tracer-agent.observability.svc.cluster.local:16686
         image: barbietunnie/observability-frontend-app:latest
         ports:
         - name: frontend-port
+          protocol: TCP
           containerPort: 8080
 ---
 apiVersion: v1
@@ -27,12 +37,36 @@ kind: Service
 metadata:
   name: frontend-service
   namespace: observability
-  annotations:
-    "sidecar.jaegertracing.io/inject": "true"
+  labels:
+    app: frontend
+    release: prometheus
 spec:
   selector:
     app: frontend
   ports:
-    - port: 8080
+    - name: frontend
+      port: 8080
+      protocol: TCP
       targetPort: frontend-port
   type: LoadBalancer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: frontend
+  namespace: monitoring
+  labels:
+    app: frontend
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+      release: prometheus
+  endpoints:
+  - port: frontend
+    path: /metrics
+    interval: 5s
+  namespaceSelector:
+    matchNames:
+      - observability

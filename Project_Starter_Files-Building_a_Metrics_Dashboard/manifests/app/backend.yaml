@@ -2,9 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-app
+  labels:
+    app: backend
+    release: prometheus
   namespace: observability
   annotations:
     "sidecar.jaegertracing.io/inject": "true"
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: backend-port
 spec:
   replicas: 1
   selector:
@@ -21,18 +27,46 @@ spec:
         ports:
         - name: backend-port
           containerPort: 8080
+        env:
+            - name: JAEGER_AGENT_HOST
+              value: app-tracer-agent.observability.svc.cluster.local
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  labels:
+    app: backend
+    release: prometheus
   namespace: observability
-  annotations:
-    "sidecar.jaegertracing.io/inject": "true"
 spec:
   selector:
     app: backend
   ports:
-    - port: 8081
+    - name: backend
+      port: 8081
+      protocol: TCP
       targetPort: backend-port
   type: LoadBalancer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend
+  namespace: monitoring
+  labels:
+    app: backend
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: backend
+      release: prometheus
+  endpoints:
+  - port: backend
+    path: /metrics
+    interval: 5s
+  namespaceSelector:
+  #   # any: true # also works (but is a catchall)
+    matchNames:
+    - observability
